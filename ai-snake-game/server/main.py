@@ -33,10 +33,13 @@ app = FastAPI(
     description="贪吃蛇排行榜服务，支持查询前 10 名与提交成绩。",
 )
 
-# 允许前端 Vite 开发服务器跨域访问
+# 允许本地开发与线上前端跨域访问
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://xs0236.github.io",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

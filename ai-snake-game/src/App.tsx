@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import './App.css'
 
-/** 后端基址（与 FastAPI 联调） */
-const API_BASE = 'http://127.0.0.1:8000'
+/** 后端基址：本地开发走 localhost，线上构建走云端地址 */
+const API_BASE = import.meta.env.DEV
+  ? 'http://127.0.0.1:8000'
+  : 'https://xs0236.github.io'
 
 /** 棋盘列数 */
 const COLS = 20
