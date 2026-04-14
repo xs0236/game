@@ -1,0 +1,372 @@
+/* 整页布局：与 Vite 模板 root 宽度配合 */
+.snake-app {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 24px 16px 48px;
+  box-sizing: border-box;
+  min-height: 100%;
+  gap: 16px;
+  max-width: 920px;
+  margin-inline: auto;
+}
+
+/* 游戏区 + 高分榜：宽屏左右，窄屏上下 */
+.snake-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 24px;
+  width: 100%;
+}
+
+@media (min-width: 800px) {
+  .snake-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 28px;
+  }
+
+  .snake-main {
+    flex: 0 0 auto;
+  }
+
+  .snake-leaderboard {
+    flex: 1 1 260px;
+    max-width: 340px;
+    margin-inline: auto;
+  }
+}
+
+.snake-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.snake-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 16px 24px;
+  width: 100%;
+}
+
+.snake-title {
+  margin: 0;
+  font-size: clamp(28px, 5vw, 40px);
+  letter-spacing: -0.02em;
+}
+
+/* 计分板 */
+.snake-scoreboard {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+}
+
+.snake-score-label {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.snake-score-value {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-h);
+  min-width: 2ch;
+  text-align: right;
+}
+
+.snake-hint {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text);
+  max-width: 420px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* 棋盘外层：用于 overlay 定位 */
+.snake-board-wrap {
+  position: relative;
+  width: min(92vw, 420px);
+  aspect-ratio: var(--snake-cols) / var(--snake-rows);
+}
+
+/* CSS Grid：一格一 div，变量控制列数 */
+.snake-board {
+  display: grid;
+  grid-template-columns: repeat(var(--snake-cols), 1fr);
+  grid-template-rows: repeat(var(--snake-rows), 1fr);
+  width: 100%;
+  height: 100%;
+  gap: 1px;
+  padding: 4px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--border);
+}
+
+.snake-cell {
+  border-radius: 3px;
+  background: var(--bg);
+  min-width: 0;
+  min-height: 0;
+}
+
+.snake-cell--head {
+  background: linear-gradient(145deg, #34d399, #059669);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.snake-cell--body {
+  background: linear-gradient(145deg, #6ee7b7, #10b981);
+  opacity: 0.92;
+}
+
+.snake-cell--food {
+  background: radial-gradient(
+    circle at 35% 35%,
+    #fca5a5,
+    #ef4444 55%,
+    #b91c1c
+  );
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .snake-cell--head {
+    background: linear-gradient(145deg, #4ade80, #16a34a);
+  }
+
+  .snake-cell--body {
+    background: linear-gradient(145deg, #86efac, #22c55e);
+  }
+}
+
+/* Game Over 遮罩 */
+.snake-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(8, 6, 13, 0.72);
+  color: #f9fafb;
+  z-index: 2;
+  backdrop-filter: blur(4px);
+}
+
+.snake-overlay-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.snake-overlay-score {
+  margin: 0;
+  font-size: 16px;
+  opacity: 0.95;
+}
+
+.snake-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.snake-btn {
+  font: inherit;
+  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.snake-btn:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow);
+}
+
+.snake-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.snake-btn--primary {
+  border-color: transparent;
+  background: var(--accent);
+  color: #fff;
+}
+
+.snake-btn--primary:hover {
+  border-color: transparent;
+  filter: brightness(1.05);
+}
+
+@media (prefers-color-scheme: dark) {
+  .snake-btn--primary {
+    color: #0f172a;
+  }
+}
+
+/* 高分榜 */
+.snake-leaderboard {
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.snake-leaderboard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.snake-leaderboard-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.snake-btn--small {
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+.snake-leaderboard-status {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.snake-leaderboard-status--error {
+  color: #dc2626;
+}
+
+@media (prefers-color-scheme: dark) {
+  .snake-leaderboard-status--error {
+    color: #f87171;
+  }
+}
+
+.snake-leaderboard-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.snake-leaderboard-list li {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 2px;
+  align-items: baseline;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.snake-lb-rank {
+  grid-row: 1 / span 2;
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.snake-lb-name {
+  font-weight: 500;
+  color: var(--text-h);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.snake-lb-score {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--text-h);
+  justify-self: end;
+}
+
+.snake-lb-time {
+  grid-column: 2 / -1;
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* Game Over 内：提交成绩 */
+.snake-submit-block {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  max-width: 260px;
+}
+
+.snake-submit-label {
+  font-size: 13px;
+  text-align: left;
+  opacity: 0.95;
+}
+
+.snake-input {
+  font: inherit;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: #fff;
+  color: #111827;
+}
+
+.snake-input:disabled {
+  opacity: 0.7;
+}
+
+.snake-submit-msg {
+  margin: 0;
+  font-size: 13px;
+  text-align: center;
+}
+
+.snake-submit-msg--error {
+  color: #fecaca;
+}

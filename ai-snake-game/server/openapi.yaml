@@ -1,0 +1,125 @@
+openapi: 3.0.3
+info:
+  title: Snake Leaderboard API
+  version: 1.0.0
+  description: 贪吃蛇排行榜服务，支持查询前 10 名和提交新分数。
+servers:
+  - url: http://localhost:8000
+tags:
+  - name: leaderboard
+    description: 排行榜相关接口
+paths:
+  /leaderboard:
+    get:
+      tags:
+        - leaderboard
+      summary: 获取排行榜前 10 名
+      operationId: getTopScores
+      responses:
+        "200":
+          description: 成功返回前 10 名成绩（按分数从高到低）
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaderboardResponse"
+              examples:
+                default:
+                  value:
+                    items:
+                      - player: Alice
+                        score: 28
+                        created_at: "2026-04-14T09:58:20Z"
+                      - player: Bob
+                        score: 24
+                        created_at: "2026-04-14T09:55:12Z"
+    post:
+      tags:
+        - leaderboard
+      summary: 提交新分数
+      operationId: submitScore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitScoreRequest"
+            examples:
+              default:
+                value:
+                  player: Alice
+                  score: 30
+      responses:
+        "201":
+          description: 提交成功，返回已写入记录
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScoreEntry"
+        "422":
+          description: 参数校验失败
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+components:
+  schemas:
+    SubmitScoreRequest:
+      type: object
+      required:
+        - player
+        - score
+      properties:
+        player:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: 玩家昵称
+        score:
+          type: integer
+          minimum: 0
+          description: 本局得分
+    ScoreEntry:
+      type: object
+      required:
+        - player
+        - score
+        - created_at
+      properties:
+        player:
+          type: string
+        score:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          description: 提交时间（UTC, ISO8601）
+    LeaderboardResponse:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          maxItems: 10
+          items:
+            $ref: "#/components/schemas/ScoreEntry"
+    ValidationError:
+      type: object
+      properties:
+        loc:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - type: integer
+        msg:
+          type: string
+        type:
+          type: string
+    ValidationErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationError"
