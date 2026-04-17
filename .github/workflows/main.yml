@@ -25,44 +25,14 @@ jobs:
           npm install
           npm run build
 
-      - name: 4. 自动化部署到云服务器 (前端)
+      - name: 4. 自动化部署 (仅同步运行代码)
         uses: easingthemes/ssh-deploy@main
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
           REMOTE_HOST: ${{ secrets.SERVER_IP }}
           REMOTE_USER: ${{ secrets.SERVER_USER }}
-          SOURCE: "snake/dist/"
-          TARGET: "/var/www/project/snake/dist/"
+          SOURCE: "snake/"
+          TARGET: "/var/www/project/snake/"
+          # 排除所有源代码和配置文件，只保留运行所需的目录
+          EXCLUDE: "/src/, /public/, /node_modules/, /.*, /*.json, /*.ts, /*.js, /*.md, /*.yaml, /README.md"
           ARGS: "-rlgoDzvc --delete"
-
-      - name: 5. 自动化部署到云服务器 (后端)
-        uses: easingthemes/ssh-deploy@main
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.SERVER_IP }}
-          REMOTE_USER: ${{ secrets.SERVER_USER }}
-          SOURCE: "snake/server/"
-          TARGET: "/var/www/project/snake/server/"
-          ARGS: "-rlgoDzvc --delete"
-
-      - name: 6. 启动/重启后端服务 & 修正权限
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            # 修正目录权限，确保 Nginx (www-data) 有权访问
-            sudo chown -R ${{ secrets.SERVER_USER }}:www-data /var/www/project/snake
-            sudo chmod -R 755 /var/www/project/snake
-
-            cd /var/www/project/snake/server
-            # 安装 Python 依赖
-            python3 -m pip install -r requirements.txt
-            # 查找并杀掉已有的 uvicorn 进程 (如果有)
-            pkill -f "uvicorn main:app" || true
-            # 以后台模式启动 uvicorn，运行在 8000 端口
-            nohup python3 -m uvicorn main:app --host 127.0.0.1 --port 8000 > server.log 2>&1 &
-            
-            # 尝试重启 Nginx 以确保配置生效
-            sudo nginx -s reload || true
