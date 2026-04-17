@@ -17,11 +17,11 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: ai-snake-game/package-lock.json
+          cache-dependency-path: snake/package-lock.json
 
       - name: 3. 安装依赖并打包
         run: |
-          cd ai-snake-game
+          cd snake
           npm install
           npm run build
 
@@ -32,8 +32,25 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }} 
           REMOTE_HOST: ${{ secrets.SERVER_IP }}
           REMOTE_USER: ${{ secrets.SERVER_USER }}
-          # 这是打包后的目录
-          SOURCE: "ai-snake-game/dist/"
-          TARGET: "/var/www/project/ai-snake-game"
+          # 同步整个 snake 目录（包含 dist 和 server）
+          SOURCE: "snake/"
+          TARGET: "/var/www/project/snake/"
+          # 排除本地开发文件和依赖包，减少同步体积
+          EXCLUDE: "/node_modules/, /src/, /public/, /tsconfig.json/, /vite.config.ts/, /package.json/, /package-lock.json/, /eslint.config.js/, /.env.production/, /index.html/, /vercel.json/, /README.md/"
           # 部署前先清空服务器目标目录里的旧文件
           ARGS: "-rlgoDzvc --delete"
+
+      - name: 5. 启动/重启后端服务
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /var/www/project/snake/server
+            # 安装 Python 依赖
+            python3 -m pip install -r requirements.txt
+            # 查找并杀掉已有的 uvicorn 进程 (如果有)
+            pkill -f "uvicorn main:app" || true
+            # 以后台模式启动 uvicorn，运行在 8000 端口
+            nohup python3 -m uvicorn main:app --host 127.0.0.1 --port 8000 > server.log 2>&1 &
