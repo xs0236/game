@@ -39,18 +39,3 @@ jobs:
           EXCLUDE: "/node_modules/, /src/, /public/, /tsconfig.json/, /vite.config.ts/, /package.json/, /package-lock.json/, /eslint.config.js/, /.env.production/, /index.html/, /vercel.json/, /README.md/"
           # 部署前先清空服务器目标目录里的旧文件
           ARGS: "-rlgoDzvc --delete"
-
-      - name: 5. 启动/重启后端服务
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd /var/www/project/snake/server
-            # 安装 Python 依赖
-            python3 -m pip install -r requirements.txt
-            # 查找并杀掉已有的 uvicorn 进程 (如果有)
-            pkill -f "uvicorn main:app" || true
-            # 以后台模式启动 uvicorn，运行在 8000 端口
-            nohup python3 -m uvicorn main:app --host 127.0.0.1 --port 8000 > server.log 2>&1 &
