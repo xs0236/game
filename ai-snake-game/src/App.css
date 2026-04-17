@@ -401,5 +401,6 @@
 .snake-input:focus {
   outline: none;
   border-color: #4ade80;
+
   background: rgba(0, 0, 0, 0.4);
 }
