@@ -135,12 +135,10 @@
 }
 
 .snake-cell--food {
-  background: radial-gradient(
-    circle at 35% 35%,
-    #fca5a5,
-    #ef4444 55%,
-    #b91c1c
-  );
+  background: radial-gradient(circle at 35% 35%,
+      #fca5a5,
+      #ef4444 55%,
+      #b91c1c);
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.15);
 }
 
@@ -232,17 +230,25 @@
   }
 }
 
-/* 高分榜 */
+/* ============================================================
+   高分榜：高级感升级版（已融合原布局与新样式）
+   ============================================================ */
 .snake-leaderboard {
   width: 100%;
   max-width: 420px;
   margin-inline: auto;
-  padding: 16px 18px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--code-bg);
+  padding: 20px;
+  border-radius: 16px;
+  /* 圆角加大，更现代 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(30, 41, 59, 0.7);
+  /* 深色半透明底 */
+  backdrop-filter: blur(12px);
+  /* 玻璃模糊 */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   text-align: left;
   box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
 .snake-leaderboard-head {
@@ -250,35 +256,23 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
 
 .snake-leaderboard-title {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-h);
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffcf33;
+  /* 金色标题 */
+  text-shadow: 0 0 15px rgba(255, 207, 51, 0.2);
 }
 
 .snake-btn--small {
-  padding: 6px 12px;
-  font-size: 14px;
-}
-
-.snake-leaderboard-status {
-  margin: 0 0 10px;
-  font-size: 14px;
-  color: var(--text);
-}
-
-.snake-leaderboard-status--error {
-  color: #dc2626;
-}
-
-@media (prefers-color-scheme: dark) {
-  .snake-leaderboard-status--error {
-    color: #f87171;
-  }
+  padding: 6px 14px;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .snake-leaderboard-list {
@@ -287,86 +281,125 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 14px;
+  gap: 10px;
 }
 
-.snake-leaderboard-list li {
+/* 单行条目基础样式 */
+.snake-lb-item {
   display: grid;
-  grid-template-columns: 28px 1fr auto;
+  grid-template-columns: 40px 1fr auto;
+  /* 第一列放勋章，稍宽一点 */
   grid-template-rows: auto auto;
-  column-gap: 10px;
+  column-gap: 12px;
   row-gap: 2px;
-  align-items: baseline;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
 }
 
-.snake-lb-rank {
+.snake-lb-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 前三名特殊效果 */
+.rank-1 {
+  background: linear-gradient(90deg, rgba(255, 207, 51, 0.15), rgba(255, 207, 51, 0.05));
+  border-color: rgba(255, 207, 51, 0.3);
+}
+
+.rank-2 {
+  background: linear-gradient(90deg, rgba(224, 224, 224, 0.1), rgba(224, 224, 224, 0.02));
+  border-color: rgba(224, 224, 224, 0.2);
+}
+
+.rank-3 {
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.1), rgba(205, 127, 50, 0.02));
+  border-color: rgba(205, 127, 50, 0.2);
+}
+
+/* 排名数字/勋章 */
+.snake-lb-rank-wrap {
   grid-row: 1 / span 2;
   font-family: var(--mono);
-  font-weight: 600;
-  color: var(--accent);
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
 }
 
 .snake-lb-name {
-  font-weight: 500;
-  color: var(--text-h);
+  grid-column: 2;
+  font-weight: 600;
+  color: #f3f4f6;
+  font-size: 15px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .snake-lb-score {
+  grid-column: 3;
   font-family: var(--mono);
-  font-weight: 600;
-  color: var(--text-h);
+  font-weight: 700;
+  font-size: 18px;
+  color: #4ade80;
+  /* 绿色发光得分 */
+  text-shadow: 0 0 10px rgba(74, 222, 128, 0.2);
   justify-self: end;
 }
 
 .snake-lb-time {
   grid-column: 2 / -1;
   font-size: 12px;
-  color: var(--text);
+  color: #9ca3af;
+  /* 淡淡的时间 */
+  opacity: 0.8;
 }
 
-/* Game Over 内：提交成绩 */
+/* 状态展示 */
+.snake-leaderboard-status {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.snake-leaderboard-status--error {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+  padding: 8px;
+  border-radius: 6px;
+}
+
+/* 适配 Game Over 里的提交块 */
 .snake-submit-block {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
-  max-width: 260px;
-}
-
-.snake-submit-label {
-  font-size: 13px;
-  text-align: left;
-  opacity: 0.95;
+  max-width: 280px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 16px;
+  border-radius: 12px;
 }
 
 .snake-input {
   font: inherit;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: #fff;
-  color: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+  transition: all 0.2s;
 }
 
-.snake-input:disabled {
-  opacity: 0.7;
-}
-
-.snake-submit-msg {
-  margin: 0;
-  font-size: 13px;
-  text-align: center;
-}
-
-.snake-submit-msg--error {
-  color: #fecaca;
+.snake-input:focus {
+  outline: none;
+  border-color: #4ade80;
+  background: rgba(0, 0, 0, 0.4);
 }

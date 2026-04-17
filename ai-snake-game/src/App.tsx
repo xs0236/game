@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import './App.css'
 
-/** 后端基址：本地开发走 localhost，线上构建走云端地址 */
-const API_BASE = import.meta.env.DEV
-  ? 'http://127.0.0.1:8000'
-  : 'https://xs0236.github.io'
+/** 后端基址：开发环境走本地；生产环境从 VITE_API_BASE 读取 */
+const API_BASE = (
+  import.meta.env.DEV
+    ? 'http://127.0.0.1:8000'
+    : import.meta.env.VITE_API_BASE || ''
+).replace(/\/$/, '')
 
 /** 棋盘列数 */
 const COLS = 20
@@ -64,6 +66,9 @@ function spawnFood(snake: Cell[]): Cell {
 
 /** GET 排行榜 */
 async function fetchLeaderboard(): Promise<ScoreEntry[]> {
+  if (!API_BASE) {
+    throw new Error('未配置后端地址：请设置 VITE_API_BASE')
+  }
   const res = await fetch(`${API_BASE}/leaderboard`)
   if (!res.ok) {
     const text = await res.text().catch(() => '')
@@ -75,6 +80,9 @@ async function fetchLeaderboard(): Promise<ScoreEntry[]> {
 
 /** POST 提交分数 */
 async function postScore(player: string, score: number): Promise<ScoreEntry> {
+  if (!API_BASE) {
+    throw new Error('未配置后端地址：请设置 VITE_API_BASE')
+  }
   const res = await fetch(`${API_BASE}/leaderboard`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -94,11 +102,11 @@ function formatTime(iso: string): string {
     return Number.isNaN(d.getTime())
       ? iso
       : d.toLocaleString(undefined, {
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-        })
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
   } catch {
     return iso
   }
@@ -455,16 +463,41 @@ export default function App() {
             <p className="snake-leaderboard-status">暂无记录</p>
           )}
           <ol className="snake-leaderboard-list">
-            {leaderboard.map((row, i) => (
-              <li key={`${row.player}-${row.score}-${row.created_at}-${i}`}>
-                <span className="snake-lb-rank">{i + 1}</span>
-                <span className="snake-lb-name" title={row.player}>
-                  {row.player}
-                </span>
-                <span className="snake-lb-score">{row.score}</span>
-                <span className="snake-lb-time">{formatTime(row.created_at)}</span>
-              </li>
-            ))}
+            {leaderboard.map((row, i) => {
+              const rank = i + 1;
+              // 定义前三名的勋章
+              const getMedal = (r: number) => {
+                if (r === 1) return '🥇';
+                if (r === 2) return '🥈';
+                if (r === 3) return '🥉';
+                return r;
+              };
+
+              return (
+                <li
+                  key={`${row.player}-${row.score}-${row.created_at}-${i}`}
+                  className={`snake-lb-item rank-${rank <= 3 ? rank : 'other'}`}
+                >
+                  <div className="snake-lb-rank-wrap">
+                    <span className={`snake-lb-rank rank-badge-${rank}`}>
+                      {getMedal(rank)}
+                    </span>
+                  </div>
+
+                  <div className="snake-lb-info">
+                    <div className="snake-lb-main-row">
+                      <span className="snake-lb-name" title={row.player}>
+                        {row.player}
+                      </span>
+                      <span className="snake-lb-score">{row.score.toLocaleString()}</span>
+                    </div>
+                    <div className="snake-lb-meta">
+                      <span className="snake-lb-time">{formatTime(row.created_at)}</span>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
           </ol>
         </aside>
       </div>

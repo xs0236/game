@@ -1,53 +1,41 @@
-name: Deploy Vite site to Pages
+name: Deploy Snake Game to My Server
 
 on:
   push:
-    branches: ["main"] # 当 main 分支有更新时触发
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+    branches: ["main"] # 当你 push 到 main 分支时自动触发
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ai-snake-game # 告诉 GitHub 你的代码在哪个文件夹里
+    
     steps:
-      - name: Checkout
+      - name: 1. 拉取仓库代码
         uses: actions/checkout@v4
 
-      - name: Set up Node
+      - name: 2. 安装 Node.js 环境
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
           cache-dependency-path: ai-snake-game/package-lock.json
 
-      - name: Install dependencies
-        run: npm install
+      - name: 3. 安装依赖并打包
+        run: |
+          cd ai-snake-game
+          npm install
+          npm run build
 
-      - name: Build
-        run: npm run build
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: 4. 自动化部署到云服务器
+        uses: easingthemes/ssh-deploy@main
         with:
-          # 打包后的文件夹，Vite 默认是 dist
-          path: './ai-snake-game/dist'
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          # 下面这些变量会自动读取你在 GitHub Settings 里填的 Secrets
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }} 
+          REMOTE_HOST: ${{ secrets.SERVER_IP }}
+          REMOTE_USER: ${{ secrets.SERVER_USER }}
+          # 这是打包后的目录
+          SOURCE: "ai-snake-game/dist/"
+          # 这是你服务器上存放网页的目录，记得改成你自己的实际路径！
+          # 比如：/var/www/html 或者 /www/wwwroot/your-site
+          TARGET: "/var/www/html" 
+          # 部署前先清空服务器目标目录里的旧文件
+          ARGS: "-rlgoDzvc -delete"
