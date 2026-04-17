@@ -38,4 +38,4 @@ jobs:
           # 比如：/var/www/html 或者 /www/wwwroot/your-site
           TARGET: "/var/www/html" 
           # 部署前先清空服务器目标目录里的旧文件
-          ARGS: "-rlgoDzvc -delete"
+          ARGS: "-rlgoDzvc --delete"
