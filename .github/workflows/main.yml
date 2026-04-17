@@ -34,8 +34,6 @@ jobs:
           REMOTE_USER: ${{ secrets.SERVER_USER }}
           # 这是打包后的目录
           SOURCE: "ai-snake-game/dist/"
-          # 这是你服务器上存放网页的目录，记得改成你自己的实际路径！
-          # 比如：/var/www/html 或者 /www/wwwroot/your-site
-          TARGET: "/var/www/html" 
+          TARGET: "/var/www/project/ai-snake-game"
           # 部署前先清空服务器目标目录里的旧文件
           ARGS: "-rlgoDzvc --delete"
